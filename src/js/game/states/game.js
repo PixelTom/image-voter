@@ -19,10 +19,13 @@ let teamsToLoad = []
 let loadedTeams = []
 let reader = new FileReader();
 let imageGroup;
+let uiGroup;
 
 game.create = function () {
   game.prepSet();
   imageGroup = game.add.group()
+  uiGroup = game.add.group()
+  this.createButtons()
   document.getElementById('getval').addEventListener('change', this.readURL, true);
   this.game.load.onLoadComplete.add(game.loadComplete, this);
 };
@@ -30,6 +33,14 @@ game.create = function () {
 game.prepSet = function () {
   setID++;
   sets['set' + String(setID)] = [];
+}
+
+game.createButtons = function(){
+  let btnHomeWin = uiGroup.add(new Phaser.Button(this.game, 152, 640, 'btnWin'))
+  let btnAwayWin = uiGroup.add(new Phaser.Button(this.game, 695, 640, 'btnWin'))
+  let btnDraw = uiGroup.add(new Phaser.Button(this.game, 424, 677, 'btnDraw'))
+  let btnHomePurge = uiGroup.add(new Phaser.Button(this.game, 152, 704, 'btnPurge'))
+  let btnAwayPurge = uiGroup.add(new Phaser.Button(this.game, 695, 704, 'btnPurge'))
 }
 
 game.readURL = function(){
