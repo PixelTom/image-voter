@@ -18,9 +18,11 @@ let draw = []
 let teamsToLoad = []
 let loadedTeams = []
 let reader = new FileReader();
+let imageGroup;
 
 game.create = function () {
   game.prepSet();
+  imageGroup = game.add.group()
   document.getElementById('getval').addEventListener('change', this.readURL, true);
   this.game.load.onLoadComplete.add(game.loadComplete, this);
 };
@@ -178,6 +180,7 @@ game.addPic = function (pos, imgID) {
   console.log('addPic')
   const posArr = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
   const pic = this.game.add.sprite(posArr[pos][0], posArr[pos][1], imgID);
+  imageGroup.add(pic)
   const maxX = this.game.world.width / 2;
   const maxY = this.game.world.height;
   console.log(maxX, maxY);
