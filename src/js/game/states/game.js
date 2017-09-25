@@ -1,12 +1,23 @@
+const WIN   = 'win'
+const DRAW  = 'draw'
+const PURGE = 'purge'
+const BYE   = 'bye'
+
 const game = {};
 const _ = require('underscore');
 const preloader = require('./preloader.js');
 const allowedTypes = ['jpg', 'png', 'jpeg'];
 let setID = 0;
 let countID = 0;
+let matchID = 0
 let readingComplete = false;
 let loadingComplete = false;
 let sets = {};
+let teams = []
+let draw = []
+let teamsToLoad = []
+let loadedTeams = []
+let reader = new FileReader();
 
 game.create = function () {
   game.prepSet();
@@ -22,41 +33,125 @@ game.prepSet = function () {
 game.readURL = function(){
   console.log('Loading...');
   const input = document.getElementById("getval");
-  let reader = new FileReader();
-  let fileArr = []
-  let file;
+  // Generate the teams
+  let generateTeams = function(input){
+    let i = 0
 
-  for(let item of input.files){
-    fileArr.push(item);
+    let validateItem = function(item){
+      let extension = item.name.split('.').pop();
+      if(allowedTypes.indexOf(extension) >= 0){
+        return true
+      }
+      console.log('Ignoring file:', item.name);
+      return false
+    }
+
+    let newTeam = function(item, i){
+      return {
+        file: item,
+        id: i,
+        purged: false,
+        win: 0,
+        draw: 0,
+        loss: 0,
+        points: 0
+      }
+    }
+    // Make each team
+    for(let item of input.files){
+      if(validateItem(item)){
+        teams.push(newTeam(item, i))
+        i++
+      }
+    }
+    // Push a bye if odd teams
+    if(teams.length % 2 != 0){
+      teams.push(newTeam(BYE, i))
+    }
+    return teams
+  }
+  // Generate the draw
+  let generateDraw = function(teams){
+    console.log('generateDraw', teams.length, 'teams')
+    let arr = []
+    for(let i = 0; i < teams.length; i++){
+      for(let j = 0; j < teams.length; j++){
+        if(i != j){
+          arr.push({
+            home: teams[i],
+            away: teams[j]
+          })
+        }
+      }
+    }
+    arr = _.shuffle(arr)
+    return arr
   }
 
-  let readFiles = function() {
-    if(fileArr.length > 0){
-      file = fileArr.shift()
-      let extension = file.name.split('.').pop();
-      if(allowedTypes.indexOf(extension) >= 0){
-        reader.readAsDataURL(file);
-      }
-      else {
-        console.log('Ignoring file:', file.name);
-        readFiles();
-      }
-    }
-    else
-    {
-      readingComplete = true;
-    }
+  teams = generateTeams(input)
+  draw = generateDraw(teams)
+  console.log('Ready to play', draw.length, 'matches')
+
+  game.generateMatch()
+}
+
+game.generateMatch = function(){
+  let matchInfo = draw.pop()
+  this.loadTeams(matchInfo.home, matchInfo.away)
+}
+
+game.endMatch = function(winner, loser, draw = false, purge = false){
+  if(draw){
+    winner.draw++
+    loser.draw++
+  }else{
+    winner.win++
+    loser.loss++
+  }
+  if(purge){
+    loser.purged = true
+  }
+}
+
+game.loadTeams = function(home, away){
+  let readFiles = function(){
+    const team = teamsToLoad.shift()
+    if(teamsToLoad.length <= 0) readingComplete = true
+    reader.readAsDataURL(team.file);
   }
 
   reader.onloadend = function(e){
-    let result = reader.result;
+    const result = reader.result;
     game.loadResult(result);
-    readFiles();
+    if(teamsToLoad.length > 0) readFiles();
   }
-  readFiles();
+
+  if(home.file === BYE){
+    this.endMatch(away, home)
+  }else if(away.file === BYE){
+    this.endMatch(home, away)
+  }else{
+    teamsToLoad = [home, away]
+    readFiles()
+    /*for(team of [home, away]){
+      reader.readAsDataURL(team.file);
+    }*/
+  }
+
+    /*file = teams.shift().file
+    let extension = file.name.split('.').pop();
+    if(allowedTypes.indexOf(extension) >= 0){
+      reader.readAsDataURL(file);
+    }
+    else {
+      console.log('Ignoring file:', file.name);
+      readFiles();
+    }*/
+
 }
 
 game.loadResult = function (result) {
+  console.log("loading image")
   countID++;
   let imgID = "set" + String(setID) + '_' + String(countID)
   this.game.load.image(imgID, result);
@@ -65,6 +160,7 @@ game.loadResult = function (result) {
 }
 
 game.loadComplete = function () {
+  console.log('loadComplete')
   if(readingComplete === true){
     loadingComplete = true;
     game.genNewPair();
@@ -72,12 +168,14 @@ game.loadComplete = function () {
 }
 
 game.genNewPair = function () {
+  console.log('genNewPair')
   const newPics = _.sample(sets['set' + String(setID)], 2)
   let img1 = this.addPic(0, newPics[0]);
   let img2 = this.addPic(1, newPics[1]);
 }
 
 game.addPic = function (pos, imgID) {
+  console.log('addPic')
   const posArr = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
   const pic = this.game.add.sprite(posArr[pos][0], posArr[pos][1], imgID);
   const maxX = this.game.world.width / 2;
