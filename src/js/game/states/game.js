@@ -137,8 +137,12 @@ game.readURL = function(){
 }
 
 game.generateMatch = function(){
-  const matchInfo = draw.pop()
-  this.loadTeams(matchInfo.home, matchInfo.away)
+  if(draw.length <= 0){
+    console.log("Done son")
+  }else{
+    const matchInfo = draw.pop()
+    this.loadTeams(matchInfo.home, matchInfo.away)
+  }
 }
 
 game.endMatch = function(winner, loser, draw = false, purge = false){
