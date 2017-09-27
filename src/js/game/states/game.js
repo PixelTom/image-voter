@@ -2,45 +2,73 @@ const WIN   = 'win'
 const DRAW  = 'draw'
 const PURGE = 'purge'
 const BYE   = 'bye'
+const HOME  = 'home'
+const AWAY  = 'away'
+const BOTH  = 'both'
 
 const game = {};
 const _ = require('underscore');
 const preloader = require('./preloader.js');
 const allowedTypes = ['jpg', 'png', 'jpeg'];
-let setID = 0;
 let countID = 0;
-let matchID = 0
-let readingComplete = false;
-let loadingComplete = false;
-let sets = {};
 let teams = []
 let draw = []
 let teamsToLoad = []
 let loadedTeams = []
-let reader = new FileReader();
 let imageGroup;
 let uiGroup;
 
 game.create = function () {
-  game.prepSet();
   imageGroup = game.add.group()
+  console.log('imageGroup', imageGroup)
   uiGroup = game.add.group()
-  this.createButtons()
+  game.createButtons()
   document.getElementById('getval').addEventListener('change', this.readURL, true);
-  this.game.load.onLoadComplete.add(game.loadComplete, this);
 };
 
-game.prepSet = function () {
-  setID++;
-  sets['set' + String(setID)] = [];
+game.createButtons = function(){
+  let btnHomeWin    = this.genButton(152, 640, 'btnWin', HOME, WIN)
+  let btnAwayWin    = this.genButton(695, 640, 'btnWin', AWAY, WIN)
+  let btnDraw       = this.genButton(424, 677, 'btnDraw', BOTH, DRAW)
+  let btnHomePurge  = this.genButton(152, 704, 'btnPurge', HOME, PURGE)
+  let btnAwayPurge  = this.genButton(695, 704, 'btnPurge', AWAY, PURGE)
 }
 
-game.createButtons = function(){
-  let btnHomeWin = uiGroup.add(new Phaser.Button(this.game, 152, 640, 'btnWin'))
-  let btnAwayWin = uiGroup.add(new Phaser.Button(this.game, 695, 640, 'btnWin'))
-  let btnDraw = uiGroup.add(new Phaser.Button(this.game, 424, 677, 'btnDraw'))
-  let btnHomePurge = uiGroup.add(new Phaser.Button(this.game, 152, 704, 'btnPurge'))
-  let btnAwayPurge = uiGroup.add(new Phaser.Button(this.game, 695, 704, 'btnPurge'))
+game.genButton = function(x, y, key, side, result){
+    let btn = uiGroup.add(new Phaser.Button(this.game, x, y, key))
+    btn.side = side
+    btn.result = result
+    btn.events.onInputDown.add(game.clickHandler)
+  }
+
+game.clickHandler = function(button, mouse){
+  if(loadedTeams.length < 2){
+    console.error("loadedTeams.length error: does not match 2, result:", loadedTeams.length)
+    return
+  }
+  let side = button.side
+  let result = button.result
+  let home = loadedTeams[0]
+  let away = loadedTeams[1]
+  switch(side){
+    case BOTH:
+      game.endMatch(home, away, true)
+    break
+    case HOME:
+      if(result == WIN){
+        game.endMatch(home, away)
+      }else{
+        game.endMatch(away, home, false, true)
+      }
+    break
+    case AWAY:
+      if(result == WIN){
+        game.endMatch(away, home)
+      }else{
+        game.endMatch(home, away, false, true)
+      }
+    break
+  }
 }
 
 game.readURL = function(){
@@ -109,7 +137,7 @@ game.readURL = function(){
 }
 
 game.generateMatch = function(){
-  let matchInfo = draw.pop()
+  const matchInfo = draw.pop()
   this.loadTeams(matchInfo.home, matchInfo.away)
 }
 
@@ -124,77 +152,69 @@ game.endMatch = function(winner, loser, draw = false, purge = false){
   if(purge){
     loser.purged = true
   }
+  // Remove images from the imageGroup (should be only two)
+  console.log('imgageGroup', imageGroup)
 }
 
 game.loadTeams = function(home, away){
+  let team
+  let readingComplete = false
+  let reader = new FileReader();
+
   let readFiles = function(){
-    const team = teamsToLoad.shift()
+    console.log('readFiles', teamsToLoad.length, 'files to go')
+    team = teamsToLoad.shift()
+    loadedTeams.push(team)
     if(teamsToLoad.length <= 0) readingComplete = true
     reader.readAsDataURL(team.file);
   }
 
   reader.onloadend = function(e){
     const result = reader.result;
-    game.loadResult(result);
-    if(teamsToLoad.length > 0) readFiles();
+    console.log('Loadend, loadingResult')
+    countID++;
+    team.imgID = 'teamImg_' + String(countID)
+    game.load.image(team.imgID, result);
+    game.load.start();
   }
 
+  let loadComplete = function () {
+    if(readingComplete === true){
+      game.load.onLoadComplete.remove(loadComplete, this)
+      const img1 = this.addPic(0, loadedTeams[0].imgID);
+      const img2 = this.addPic(1, loadedTeams[1].imgID);
+    }else{
+      readFiles();
+    }
+  }
+
+  game.load.onLoadComplete.add(loadComplete, this);
+  loadedTeams = []
+  // If one of the teams is a BYE team, auto-complete the match
   if(home.file === BYE){
+    console.log('AWAY vs BYE')
     this.endMatch(away, home)
   }else if(away.file === BYE){
+    console.log('HOME vs BYE')
     this.endMatch(home, away)
   }else{
     teamsToLoad = [home, away]
     readFiles()
-    /*for(team of [home, away]){
-      reader.readAsDataURL(team.file);
-    }*/
-  }
-
-    /*file = teams.shift().file
-    let extension = file.name.split('.').pop();
-    if(allowedTypes.indexOf(extension) >= 0){
-      reader.readAsDataURL(file);
-    }
-    else {
-      console.log('Ignoring file:', file.name);
-      readFiles();
-    }*/
-
-}
-
-game.loadResult = function (result) {
-  console.log("loading image")
-  countID++;
-  let imgID = "set" + String(setID) + '_' + String(countID)
-  this.game.load.image(imgID, result);
-  this.game.load.start();
-  sets['set' + String(setID)].push(imgID);
-}
-
-game.loadComplete = function () {
-  console.log('loadComplete')
-  if(readingComplete === true){
-    loadingComplete = true;
-    game.genNewPair();
   }
 }
 
-game.genNewPair = function () {
-  console.log('genNewPair')
-  const newPics = _.sample(sets['set' + String(setID)], 2)
-  let img1 = this.addPic(0, newPics[0]);
-  let img2 = this.addPic(1, newPics[1]);
-}
-
+/*
+  Add a loaded image to the canvas
+ */
 game.addPic = function (pos, imgID) {
   console.log('addPic')
   const posArr = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
-  const pic = this.game.add.sprite(posArr[pos][0], posArr[pos][1], imgID);
+  const pic = this.game.make.sprite(posArr[pos][0], posArr[pos][1], imgID);
+  console.log(imageGroup.children)
   imageGroup.add(pic)
   const maxX = this.game.world.width / 2;
   const maxY = this.game.world.height;
-  console.log(maxX, maxY);
+  //console.log(maxX, maxY);
   const scaleX = maxX / pic.width;
   const scaleY = maxY / pic.height;
   pic.anchor.setTo(0.5, 0.5);
