@@ -157,7 +157,10 @@ game.endMatch = function(winner, loser, draw = false, purge = false){
     loser.purged = true
   }
   // Remove images from the imageGroup (should be only two)
-  console.log('imgageGroup', imageGroup)
+  for(let team of loadedTeams){
+    team.pic.destroy(true, true)
+  }
+  game.generateMatch()
 }
 
 game.loadTeams = function(home, away){
