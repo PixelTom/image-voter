@@ -8,6 +8,7 @@ module.exports = {
   mute: false,
   showStats: true,
   homeAndAway: false,
+  roundRobin: false,
   size: {
     x: 1024,
     y: 768
