@@ -7,6 +7,7 @@ module.exports = {
   liveReloadPort: 3018,
   mute: false,
   showStats: true,
+  homeAndAway: false,
   size: {
     x: 1024,
     y: 768
