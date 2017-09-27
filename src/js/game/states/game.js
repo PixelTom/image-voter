@@ -185,8 +185,8 @@ game.loadTeams = function(home, away){
   let loadComplete = function () {
     if(readingComplete === true){
       game.load.onLoadComplete.remove(loadComplete, this)
-      const img1 = this.addPic(0, loadedTeams[0].imgID);
-      const img2 = this.addPic(1, loadedTeams[1].imgID);
+      this.addPic(0, loadedTeams[0]);
+      this.addPic(1, loadedTeams[1]);
     }else{
       readFiles();
     }
@@ -210,7 +210,7 @@ game.loadTeams = function(home, away){
 /*
   Add a loaded image to the canvas
  */
-game.addPic = function (pos, imgID) {
+game.addPic = function (pos, team) {
   let clickPic = function(target, pointer){
     // Scale up the image and move it to the middle
     // Hide UI and other image
@@ -219,7 +219,7 @@ game.addPic = function (pos, imgID) {
 
   console.log('addPic')
   const posArr = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
-  const pic = this.game.make.sprite(posArr[pos][0], posArr[pos][1], imgID);
+  const pic = this.game.make.sprite(posArr[pos][0], posArr[pos][1], team.imgID);
   console.log(imageGroup.children)
   imageGroup.add(pic)
   const maxX = this.game.world.width / 2;
@@ -230,7 +230,7 @@ game.addPic = function (pos, imgID) {
   pic.scale.x = pic.scale.y = Math.min(scaleX, scaleY);
   pic.inputEnabled = true
   pic.events.onInputDown.add(clickPic)
-  return pic
+  team.pic = pic
 }
 
 module.exports = game;
