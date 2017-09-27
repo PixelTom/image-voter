@@ -9,6 +9,7 @@ const BOTH  = 'both'
 const game = {};
 const _ = require('underscore');
 const preloader = require('./preloader.js');
+const properties = require('./../properties');
 const allowedTypes = ['jpg', 'png', 'jpeg', 'gif'];
 let countID = 0;
 let teams = []
@@ -133,12 +134,26 @@ game.readURL = function(){
   let generateDraw = function(teams){
     console.log('generateDraw', teams.length, 'teams')
     let arr = []
-    for(let i = 0; i < teams.length; i++){
-      for(let j = 0; j < teams.length; j++){
-        if(i != j){
+    // Every team plays every team twice
+    if(properties.homeAndAway === true){
+      for(let i = 0; i < teams.length; i++){
+        for(let j = 0; j < teams.length; j++){
+          if(i != j){
+            arr.push({
+              home: teams[i],
+              away: teams[j]
+            })
+          }
+        }
+      }
+    // Every team plays every team once
+    }else{
+      for(let i = 0; i < teams.length; i++){
+        for(let j = i + 1; j < teams.length; j++){
+          let shuff = _.shuffle([i, j])
           arr.push({
-            home: teams[i],
-            away: teams[j]
+            home: teams[shuff[0]],
+            away: teams[shuff[1]]
           })
         }
       }
