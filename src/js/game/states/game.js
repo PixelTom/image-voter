@@ -230,7 +230,7 @@ game.loadTeams = function(home, away){
     }
   }
 
-  game.load.onLoadComplete.add(loadComplete, this);
+  teamsToLoad = []
   loadedTeams = []
   // If one of the teams is a BYE team, auto-complete the match
   if(home.file === BYE){
@@ -240,6 +240,7 @@ game.loadTeams = function(home, away){
     console.log('HOME vs BYE')
     this.endMatch(home, away)
   }else{
+    game.load.onLoadComplete.add(loadComplete, this);
     teamsToLoad = [home, away]
     readFiles()
   }
