@@ -207,6 +207,12 @@ game.loadTeams = function(home, away){
   Add a loaded image to the canvas
  */
 game.addPic = function (pos, imgID) {
+  let clickPic = function(target, pointer){
+    // Scale up the image and move it to the middle
+    // Hide UI and other image
+    // On second click, send everything back to their original position
+  }
+
   console.log('addPic')
   const posArr = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
   const pic = this.game.make.sprite(posArr[pos][0], posArr[pos][1], imgID);
@@ -214,11 +220,12 @@ game.addPic = function (pos, imgID) {
   imageGroup.add(pic)
   const maxX = this.game.world.width / 2;
   const maxY = this.game.world.height;
-  //console.log(maxX, maxY);
   const scaleX = maxX / pic.width;
   const scaleY = maxY / pic.height;
   pic.anchor.setTo(0.5, 0.5);
   pic.scale.x = pic.scale.y = Math.min(scaleX, scaleY);
+  pic.inputEnabled = true
+  pic.events.onInputDown.add(clickPic)
   return pic
 }
 
