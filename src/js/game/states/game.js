@@ -18,6 +18,9 @@ let loadedTeams = []
 let imageGroup;
 let uiGroup;
 
+// ============================================================0
+// 
+// ============================================================0
 game.create = function () {
   imageGroup = game.add.group()
   console.log('imageGroup', imageGroup)
@@ -26,6 +29,9 @@ game.create = function () {
   document.getElementById('getval').addEventListener('change', this.readURL, true);
 };
 
+// ============================================================0
+// 
+// ============================================================0
 game.createButtons = function(){
   let btnHomeWin    = this.genButton(152, 640, 'btnWin', HOME, WIN)
   let btnAwayWin    = this.genButton(695, 640, 'btnWin', AWAY, WIN)
@@ -34,6 +40,9 @@ game.createButtons = function(){
   let btnAwayPurge  = this.genButton(695, 704, 'btnPurge', AWAY, PURGE)
 }
 
+// ============================================================0
+// 
+// ============================================================0
 game.genButton = function(x, y, key, side, result){
     let btn = uiGroup.add(new Phaser.Button(this.game, x, y, key))
     btn.side = side
@@ -41,6 +50,9 @@ game.genButton = function(x, y, key, side, result){
     btn.events.onInputDown.add(game.clickHandler)
   }
 
+// ============================================================0
+// 
+// ============================================================0
 game.clickHandler = function(button, mouse){
   if(loadedTeams.length < 2){
     console.error("loadedTeams.length error: does not match 2, result:", loadedTeams.length)
@@ -71,10 +83,14 @@ game.clickHandler = function(button, mouse){
   }
 }
 
+// ============================================================0
+// 
+// ============================================================0
 game.readURL = function(){
   console.log('Loading...');
   const input = document.getElementById("getval");
   // Generate the teams
+  // --------------------------------------------------o
   let generateTeams = function(input){
     let i = 0
 
@@ -87,6 +103,7 @@ game.readURL = function(){
       return false
     }
 
+    // --------------------------------------------------o
     let newTeam = function(item, i){
       return {
         file: item,
@@ -111,6 +128,7 @@ game.readURL = function(){
     }
     return teams
   }
+  // --------------------------------------------------o
   // Generate the draw
   let generateDraw = function(teams){
     console.log('generateDraw', teams.length, 'teams')
@@ -136,7 +154,12 @@ game.readURL = function(){
   game.generateMatch()
 }
 
+// ============================================================0
+// 
+// ============================================================0
 game.generateMatch = function(){
+  console.log('=============================')
+  console.log('Generate Match')
   if(draw.length <= 0){
     console.log("Done son")
   }else{
@@ -145,7 +168,12 @@ game.generateMatch = function(){
   }
 }
 
+// ============================================================0
+// 
+// ============================================================0
 game.endMatch = function(winner, loser, draw = false, purge = false){
+  console.log('End Match')
+  console.log('=============================')
   if(draw){
     winner.draw++
     loser.draw++
@@ -163,11 +191,18 @@ game.endMatch = function(winner, loser, draw = false, purge = false){
   game.generateMatch()
 }
 
+// ============================================================0
+// 
+// ============================================================0
 game.loadTeams = function(home, away){
+  console.log('Load Teams')
+  console.log('Home:', home)
+  console.log('Away:', away)
   let team
   let readingComplete = false
   let reader = new FileReader();
 
+  // --------------------------------------------------o
   let readFiles = function(){
     console.log('readFiles', teamsToLoad.length, 'files to go')
     team = teamsToLoad.shift()
@@ -175,7 +210,7 @@ game.loadTeams = function(home, away){
     if(teamsToLoad.length <= 0) readingComplete = true
     reader.readAsDataURL(team.file);
   }
-
+  // --------------------------------------------------o
   reader.onloadend = function(e){
     const result = reader.result;
     console.log('Loadend, loadingResult')
@@ -184,7 +219,7 @@ game.loadTeams = function(home, away){
     game.load.image(team.imgID, result);
     game.load.start();
   }
-
+  // --------------------------------------------------o
   let loadComplete = function () {
     if(readingComplete === true){
       game.load.onLoadComplete.remove(loadComplete, this)
@@ -210,9 +245,9 @@ game.loadTeams = function(home, away){
   }
 }
 
-/*
-  Add a loaded image to the canvas
- */
+// ============================================================0
+// Add a loaded image to the canvas
+// ============================================================0
 game.addPic = function (pos, team) {
   let clickPic = function(target, pointer){
     // Scale up the image and move it to the middle
