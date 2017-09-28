@@ -1,4 +1,4 @@
-# Image Voter
+# [WIP] Image Voter
 
 Feed images into the program and vote for your favourite.
 
