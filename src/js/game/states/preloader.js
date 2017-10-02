@@ -6,6 +6,7 @@ preloader.preload = function () {
   this.game.load.image('btnWin', 'images/win.png')
   this.game.load.image('btnPurge', 'images/purge.png')
   this.game.load.image('logo', 'images/phaser.png');
+  this.game.load.image('background', 'images/background.jpg');
 };
 
 preloader.create = function () {

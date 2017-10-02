@@ -12,6 +12,7 @@ const preloader = require('./preloader.js');
 const properties = require('./../properties');
 const allowedTypes = ['jpg', 'png', 'jpeg', 'gif'];
 let countID = 0;
+let total = 0
 let teams = []
 let draw = []
 let teamsToLoad = []
@@ -20,18 +21,20 @@ let imageGroup;
 let uiGroup;
 
 // ============================================================0
-// 
+//
 // ============================================================0
 game.create = function () {
+  game.add.sprite(0, 0, 'background');
   imageGroup = game.add.group()
   console.log('imageGroup', imageGroup)
   uiGroup = game.add.group()
   game.createButtons()
+  game.createMatchCounter()
   document.getElementById('getval').addEventListener('change', this.readURL, true);
 };
 
 // ============================================================0
-// 
+//
 // ============================================================0
 game.createButtons = function(){
   let btnHomeWin    = this.genButton(152, 640, 'btnWin', HOME, WIN)
@@ -41,8 +44,18 @@ game.createButtons = function(){
   let btnAwayPurge  = this.genButton(695, 704, 'btnPurge', AWAY, PURGE)
 }
 
+
 // ============================================================0
-// 
+//
+// ============================================================0
+game.createMatchCounter = function(){
+  let txtCounter  = game.make.text(0, 0, "Load files to begin...")
+  txtCounter.name = 'txtCounter'
+  uiGroup.add(txtCounter)
+}
+
+// ============================================================0
+//
 // ============================================================0
 game.genButton = function(x, y, key, side, result){
     let btn = uiGroup.add(new Phaser.Button(this.game, x, y, key))
@@ -52,7 +65,7 @@ game.genButton = function(x, y, key, side, result){
   }
 
 // ============================================================0
-// 
+//
 // ============================================================0
 game.clickHandler = function(button, mouse){
   if(loadedTeams.length < 2){
@@ -85,7 +98,7 @@ game.clickHandler = function(button, mouse){
 }
 
 // ============================================================0
-// 
+//
 // ============================================================0
 game.readURL = function(){
   console.log('Loading...');
@@ -164,13 +177,22 @@ game.readURL = function(){
 
   teams = generateTeams(input)
   draw = generateDraw(teams)
-  console.log('Ready to play', draw.length, 'matches')
+  total = draw.length
+  game.updateText('Ready to play ' + total + ' matches')
 
   game.generateMatch()
 }
 
 // ============================================================0
-// 
+//
+// ============================================================0
+game.updateText = function(text){
+  let txtCounter = uiGroup.getByName('txtCounter')
+  txtCounter.text = text
+}
+
+// ============================================================0
+//
 // ============================================================0
 game.generateMatch = function(){
   console.log('=============================')
@@ -179,12 +201,22 @@ game.generateMatch = function(){
     console.log("Done son")
   }else{
     const matchInfo = draw.pop()
+    game.updateText('Match: ' + (total - draw.length) + '/' + total)
     this.loadTeams(matchInfo.home, matchInfo.away)
   }
 }
 
 // ============================================================0
-// 
+//
+// ============================================================0
+game.dudMatch = function(home, away){
+  home.loss++
+  away.loss++
+  game.generateMatch()
+}
+
+// ============================================================0
+//
 // ============================================================0
 game.endMatch = function(winner, loser, draw = false, purge = false){
   console.log('End Match')
@@ -207,7 +239,7 @@ game.endMatch = function(winner, loser, draw = false, purge = false){
 }
 
 // ============================================================0
-// 
+//
 // ============================================================0
 game.loadTeams = function(home, away){
   console.log('Load Teams')
@@ -247,17 +279,23 @@ game.loadTeams = function(home, away){
 
   teamsToLoad = []
   loadedTeams = []
-  // If one of the teams is a BYE team, auto-complete the match
-  if(home.file === BYE){
-    console.log('AWAY vs BYE')
-    this.endMatch(away, home)
-  }else if(away.file === BYE){
-    console.log('HOME vs BYE')
-    this.endMatch(home, away)
+
+  let skip = (home.file === BYE || home.purged === true) && (away.file === BYE || away.purged === true)
+  if(skip){
+    this.dudMatch(away, home)
   }else{
-    game.load.onLoadComplete.add(loadComplete, this);
-    teamsToLoad = [home, away]
-    readFiles()
+    // If one of the teams is a BYE team, auto-complete the match
+    if(home.file === BYE || home.purged === true){
+      console.log('AWAY vs BYE or PURGED')
+      this.endMatch(away, home)
+    }else if(away.file === BYE || away.purged === true){
+      console.log('HOME vs BYE or PURGED')
+      this.endMatch(home, away)
+    }else{
+      game.load.onLoadComplete.add(loadComplete, this);
+      teamsToLoad = [home, away]
+      readFiles()
+    }
   }
 }
 
@@ -271,15 +309,13 @@ game.addPic = function (pos, team) {
     // On second click, send everything back to their original position
   }
 
-  console.log('addPic')
-  const posArr = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
-  const pic = this.game.make.sprite(posArr[pos][0], posArr[pos][1], team.imgID);
-  console.log(imageGroup.children)
+  const posArr  = [[256, this.game.world.centerY], [768, this.game.world.centerY]];
+  const pic     = this.game.make.sprite(posArr[pos][0], posArr[pos][1], team.imgID);
+  const maxX    = this.game.world.width / 2;
+  const maxY    = this.game.world.height;
+  const scaleX  = maxX / pic.width;
+  const scaleY  = maxY / pic.height;
   imageGroup.add(pic)
-  const maxX = this.game.world.width / 2;
-  const maxY = this.game.world.height;
-  const scaleX = maxX / pic.width;
-  const scaleY = maxY / pic.height;
   pic.anchor.setTo(0.5, 0.5);
   pic.scale.x = pic.scale.y = Math.min(scaleX, scaleY);
   pic.inputEnabled = true
