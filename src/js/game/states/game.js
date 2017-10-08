@@ -17,6 +17,7 @@ let teams = []
 let draw = []
 let teamsToLoad = []
 let loadedTeams = []
+let toBeDeleted = []
 let imageGroup;
 let uiGroup;
 
@@ -198,13 +199,35 @@ game.updateText = function(text){
 game.generateMatch = function(){
   console.log('=============================')
   console.log('Generate Match')
+  console.log('test', teams.length)
   if(draw.length <= 0){
     console.log("Done son")
+    let toBeDeleted = []
+    for(var team of teams){
+      if(team.purged || team.file === BYE){
+        team.points = -1
+        toBeDeleted.push(team)
+      }
+    }
+    for(team in toBeDeleted){
+      teams = _.without(teams, team)
+    }
+    console.log('toBeDeleted', toBeDeleted)
+    console.log('test', teams.length)
+    game.showTen(0)
   }else{
     const matchInfo = draw.pop()
     game.updateText('Match: ' + (total - draw.length) + '/' + total)
     this.loadTeams(matchInfo.home, matchInfo.away)
   }
+}
+
+// ============================================================0
+//
+// ============================================================0
+game.showTen = function(id){
+  const frameWidth = properties.size.x / 5
+  const frameHeight = properties.size.y / 2
 }
 
 // ============================================================0
