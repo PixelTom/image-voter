@@ -42,6 +42,7 @@ game.createButtons = function(){
   let btnDraw       = this.genButton(424, 677, 'btnDraw', BOTH, DRAW)
   let btnHomePurge  = this.genButton(152, 704, 'btnPurge', HOME, PURGE)
   let btnAwayPurge  = this.genButton(695, 704, 'btnPurge', AWAY, PURGE)
+  let btnBothPurge  = this.genButton(424, 704, 'btnPurgeBoth', BOTH, PURGE )
 }
 
 
