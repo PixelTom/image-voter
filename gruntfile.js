@@ -87,6 +87,10 @@ module.exports = function (grunt) {
       audio:{
         files: 'src/audio/**/*',
         tasks: ['copy:audio']
+      },
+      bg: {
+        files: 'src/js/electron/background.js',
+        tasks: ['copy:background']
       }
     },
 
@@ -237,9 +241,6 @@ module.exports = function (grunt) {
     'copy:audio',
     'copy:phaserArcadeMin',
     'copy:background',
-    'cacheBust',
-    'connect',
-    'open',
     'watch'
   ]);
 
