@@ -2,7 +2,7 @@
   "name": "image-voter",
   "version": "0.1.0",
   "description": "Round robin image voter",
-  "main": "build/js/app.min.js",
+  "main": "build/js/background.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -41,5 +41,8 @@
     "babelify": "^7.3.0",
     "grunt-babel": "^6.0.0",
     "load-grunt-tasks": "^3.5.2"
+  },
+  "devDependencies": {
+    "electron": "1.7.9"
   }
 }

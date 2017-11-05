@@ -186,7 +186,14 @@ module.exports = function (grunt) {
           src: ['node_modules/phaser-ce/build/phaser.min.js'],
           dest: 'build/js/phaser.js'
         } ]
+      },
+      background: {
+        files: [{
+          src: ['src/js/electron/background.js'],
+          dest: 'build/js/background.js'
+        }]
       }
+
     },
 
     uglify: {
@@ -213,6 +220,7 @@ module.exports = function (grunt) {
     'copy:images',
     'copy:audio',
     'copy:phaserArcade',
+    'copy:background',
     'connect',
     'open',
     'watch'
@@ -228,6 +236,7 @@ module.exports = function (grunt) {
     'copy:images',
     'copy:audio',
     'copy:phaserArcadeMin',
+    'copy:background',
     'cacheBust',
     'connect',
     'open',
