@@ -38,14 +38,14 @@ game.create = function () {
 //
 // ============================================================0
 game.createButtons = function(){
-  let btnHomeWin    = this.genButton(152, 640, 'btnWin', HOME, WIN)
-  let btnAwayWin    = this.genButton(695, 640, 'btnWin', AWAY, WIN)
-  let btnDraw       = this.genButton(424, 677, 'btnDraw', BOTH, DRAW)
-  let btnHomePurge  = this.genButton(152, 704, 'btnPurge', HOME, PURGE)
-  let btnAwayPurge  = this.genButton(695, 704, 'btnPurge', AWAY, PURGE)
-  let btnBothPurge  = this.genButton(424, 704, 'btnPurgeBoth', BOTH, PURGE )
+  let btnChooseFiles  = this.genButton(424, 350, 'btnChooseFiles', null, null, game.chooseHandler)
+  let btnHomeWin      = this.genButton(152, 640, 'btnWin', HOME, WIN)
+  let btnAwayWin      = this.genButton(695, 640, 'btnWin', AWAY, WIN)
+  let btnDraw         = this.genButton(424, 640, 'btnDraw', BOTH, DRAW)
+  let btnHomePurge    = this.genButton(152, 704, 'btnPurge', HOME, PURGE)
+  let btnAwayPurge    = this.genButton(695, 704, 'btnPurge', AWAY, PURGE)
+  let btnBothPurge    = this.genButton(424, 704, 'btnPurgeBoth', BOTH, PURGE )
 }
-
 
 // ============================================================0
 //
@@ -59,25 +59,34 @@ game.createMatchCounter = function(){
 // ============================================================0
 //
 // ============================================================0
-game.genButton = function(x, y, key, side, result){
+game.genButton = function(x, y, key, side = null, result = null, cb = game.clickHandler){
     let btn = uiGroup.add(new Phaser.Button(this.game, x, y, key))
     btn.side = side
     btn.result = result
-    btn.events.onInputDown.add(game.clickHandler)
+    btn.events.onInputDown.add(cb)
   }
 
 // ============================================================0
 //
 // ============================================================0
+game.chooseHandler = function(button, mouse){
+  const domBtn = document.getElementById('getval')
+  domBtn.click()
+  button.visible = false
+}
+
+// ============================================================0
+//
+// ============================================================0
 game.clickHandler = function(button, mouse){
-  if(loadedTeams.length < 2){
+  if(loadedTeams.length < 2 && side != SELECT){
     console.error("loadedTeams.length error: does not match 2, result:", loadedTeams.length)
     return
   }
-  let side = button.side
-  let result = button.result
-  let home = loadedTeams[0]
-  let away = loadedTeams[1]
+  let side    = button.side
+  let result  = button.result
+  let home    = loadedTeams[0]
+  let away    = loadedTeams[1]
   switch(side){
     case BOTH:
       game.endMatch(home, away, true)
