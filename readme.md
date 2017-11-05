@@ -8,6 +8,12 @@ Could also be useful for advertising and focus groups.
 
 Currently still a WORK IN PROGRESS
 
+## How to run
+### NOTE: Marking images to purge WILL delete them. Test this on dummy images.
+- Clone the repo
+- `npm install`
+- `./node_modules/.bin/electron .`
+
 ## Related Repos
 
 [Uses this boilerplate repo](https://github.com/PixelTom/phaser-es6-boilerplate)
