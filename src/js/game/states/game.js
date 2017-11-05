@@ -10,6 +10,9 @@ const game = {};
 const _ = require('underscore');
 const preloader = require('./preloader.js');
 const properties = require('./../properties');
+
+const fs = window.require('fs'); // Load the File System to execute our common tasks (CRUD)
+
 const allowedTypes = ['jpg', 'png', 'jpeg', 'gif'];
 let countID = 0;
 let total = 0
@@ -25,7 +28,7 @@ let uiGroup;
 //
 // ============================================================0
 game.create = function () {
-  game.add.sprite(0, 0, 'background');
+  game.add.sprite(0, 0, 'background')
   imageGroup = game.add.group()
   console.log('imageGroup', imageGroup)
   uiGroup = game.add.group()
@@ -212,22 +215,47 @@ game.generateMatch = function(){
   if(draw.length <= 0){
     console.log("Done son")
     let toBeDeleted = []
-    for(var team of teams){
+    for(let team of teams){
       if(team.purged || team.file === BYE){
         team.points = -1
         toBeDeleted.push(team)
       }
     }
-    for(team in toBeDeleted){
+    for(let team of toBeDeleted){
       teams = _.without(teams, team)
     }
     console.log('toBeDeleted', toBeDeleted)
     console.log('test', teams.length)
+    game.deletePurged(toBeDeleted)
     game.showTen(0)
   }else{
     const matchInfo = draw.pop()
     game.updateText('Match: ' + (total - draw.length) + '/' + total)
     this.loadTeams(matchInfo.home, matchInfo.away)
+  }
+}
+
+// ============================================================0
+//
+// ============================================================0
+game.deletePurged = function(toBeDeleted){
+  if(confirm("This will remove all files marked for purging.")){
+    console.log('deletePurged', toBeDeleted)
+    for(let team of toBeDeleted){
+      console.log('obj', team)
+      if (fs.existsSync(team.file.path)) {
+        fs.unlink(team.file.path, (err) => {
+          if (err) {
+            alert("An error ocurred updating the file" + err.message);
+            console.log(err);
+            return;
+          }
+          console.log("File succesfully deleted");
+        });
+      } else {
+        alert("This file doesn't exist, cannot delete");  
+      }
+    }
   }
 }
 

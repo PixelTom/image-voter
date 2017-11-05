@@ -6,30 +6,12 @@
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 const url = require('url')
-//import { devMenuTemplate } from './helpers/dev_menu_template';
-//import { editMenuTemplate } from './helpers/edit_menu_template';
-// import createWindow from './helpers/window';
-
-// // Special module holding environment variables which you declared
-// // in config/env_xxx.json file.
-// import env from './env';
 
 var mainWindow;
 
-// var setApplicationMenu = function () {
-//     var menus = [editMenuTemplate];
-//     if (env.name !== 'production') {
-//         menus.push(devMenuTemplate);
-//     }
-//     Menu.setApplicationMenu(Menu.buildFromTemplate(menus));
-// };
-
 app.on('ready', function () {
-  // setApplicationMenu();
-
-    // Create the browser window.
-  win = new BrowserWindow({width: 1024, height: 768})
-
+  // Create the browser window.
+  win = new BrowserWindow({width: 1044, height:830})
 
   console.log('_dirnane', __dirname)
   // and load the index.html of the app.
@@ -38,9 +20,6 @@ app.on('ready', function () {
     protocol: 'file:',
     slashes: true
   }))
-
-  // Open the DevTools.
-  win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', () => {
